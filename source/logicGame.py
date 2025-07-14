@@ -12,6 +12,7 @@ class Board:
     def __init__(self):
         self.squares = [[Square(row, col) for col in range(COLS)] for row in range(ROWS)]
         self.last_move = None
+        self.en_passant = None
         self.move_history = []  # Store move history as dictionary
         self.pgn_moves = []     # Store move history in SAN format
         self.move_count = 0     # Count total moves
