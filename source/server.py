@@ -1,4 +1,3 @@
-
 import pygame
 import socket
 import select
@@ -7,6 +6,7 @@ from gameplaychess import ChessGame
 from square import Square
 from move import Move
 from network import encode_move, encode_control, decode_message
+from promotion import promote_to, choose_promotion
 from gameOver import show_result_popup
 
 HOST = '0.0.0.0'
@@ -45,7 +45,7 @@ def main():
         if dragger.state['is_dragging']:
             dragger.render(screen)
 
-        # Always check network input
+        # Nhận dữ liệu từ client
         ready, _, _ = select.select([conn], [], [], 0)
         if ready:
             try:
@@ -55,11 +55,22 @@ def main():
                     if msg['type'] == 'move' and not game_over:
                         sr, sc = msg['start']
                         er, ec = msg['end']
+                        promotion = msg.get('promotion')
+
                         move = Move(Square(sr, sc), Square(er, ec))
+                        move.promotion = promotion
                         piece = board.squares[sr][sc].piece
                         board.move(piece, move)
+
+                        if promotion:
+                            promoted_piece = promote_to(promotion.lower(), piece.color)
+                            promoted_piece.moved = True
+                            promoted_piece.promoted_from_pawn = True
+                            board.squares[er][ec].piece = promoted_piece
+
                         board.en_passant = tuple(msg['en_passant']) if msg['en_passant'] else None
                         game.switch_turn()
+
                     elif msg['type'] == 'control':
                         action = msg['action']
                         if action in ['resign', 'game_over']:
@@ -98,6 +109,7 @@ def main():
                         running = False
                 continue
 
+            # Xử lý lượt của quân trắng
             if game.state['current_player'] == 'white':
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     dragger.set_mouse_pos(event.pos)
@@ -118,19 +130,29 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if dragger.state['is_dragging']:
                         dragger.set_mouse_pos(event.pos)
-                        start_row = dragger.state['start_row']
-                        start_col = dragger.state['start_col']
-                        end_row = dragger.state['mouse_y'] // SQUARE_SIZE
-                        end_col = dragger.state['mouse_x'] // SQUARE_SIZE
-                        move = Move(Square(start_row, start_col), Square(end_row, end_col))
+                        sr, sc = dragger.state['start_row'], dragger.state['start_col']
+                        er = dragger.state['mouse_y'] // SQUARE_SIZE
+                        ec = dragger.state['mouse_x'] // SQUARE_SIZE
+                        move = Move(Square(sr, sc), Square(er, ec))
                         piece = dragger.state['piece']
 
                         if board.valid_move(piece, move):
-                            captured = board.squares[end_row][end_col].has_piece()
+                            captured = board.squares[er][ec].has_piece()
                             board.move(piece, move)
                             board.set_true_en_passant(board.en_passant)
+
+                            # Xử lý promotion nếu là quân trắng
+                            promotion_choice = None
+                            if piece.name == 'pawn' and er == 7:
+                                promotion_choice = choose_promotion(screen, piece.color)
+                                promoted_piece = promote_to(promotion_choice, piece.color)
+                                promoted_piece.moved = True
+                                promoted_piece.promoted_from_pawn = True
+                                board.squares[er][ec].piece = promoted_piece
+
+                            move.promotion = promotion_choice
+
                             conn.send(encode_move(move, board.en_passant))
-                            # conn.send(encode_move(move))
                             game.play_sound(captured)
                             game.switch_turn()
 

@@ -5,7 +5,8 @@ def encode_move(move, en_passant=None):
         'type': 'move',
         'start': [move.initial.row, move.initial.col],
         'end': [move.final.row, move.final.col],
-        'en_passant': list(en_passant) if en_passant else None
+        'en_passant': list(en_passant) if en_passant else None,
+        'promotion': move.promotion if hasattr(move, 'promotion') else None
     }) + '\n').encode()
 
 def encode_control(action, winner=None, game_result=None):
