@@ -133,6 +133,8 @@ python source/main.py
 ## ⛑️Issues
 - In two-player mode: `en_passant`, `promotion` did not work accurately, `three move repetion` just popped up on 1 window side.
 - If you discover solutions or improvements to these issues, contribute and help build a truly polished chess experience.
+## 🚇 Demo
+- https://drive.google.com/file/d/1GPak9i4aB9l3Ye8O9zzhsMkNdcjVddSh/view?usp=drive_link
 ## 📚 Appendix 
 ### Modules
 - `pygame` is used for developing the game interface such as creating the game window, handling input...
