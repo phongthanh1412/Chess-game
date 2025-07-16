@@ -69,29 +69,72 @@ chessgame/
 
 ## 🤖 Project Setup
 ### Global Environment Setup
-- Install Python (version 3.8 or higher).
-- Clone, fork or download the source code from GitHub.
-  + Open Command Prompt (CMD) or Terminal.
-  + Use `git clone <repository-url>` to create a local copy of the source code from GitHub.
-  + Use `cd <repository-folder>` to navigate to the working directory.
-- Run `pip install -r requirements.txt` to install all packages used in the source code.
-- Alternatively, install libraries manually using `pip install <library_name>`.
+1. Install Python: <br>
+Download and install Python (version 3.8 or higher).
+2. Clone, fork or download the project:
+- Open Command Prompt (CMD) or Terminal
+```
+git clone https://github.com/phongthanh1412/Chess-game.git
+```
+- Navigate to your project
+```
+cd ~\Chessgame
+```
+3. Install dependencies
+```
+pip install -r requirements.txt
+```
 ### Virtual Environment Setup
-- Install Python (version 3.8 or higher).
-- Clone, fork or download the source code from GitHub and set up the virtual environment.
-  + Open Command Prompt (CMD) or Terminal.
-  + Use `git clone <repository-url>` to create a local copy of the source code from GitHub.
-  + Use `cd <repository-folder>` to navigate to the working directory.
-  + Run `python -m venv venv` to set up a virtual environment for the source code.
-  + Verify Python installation by running `python --version`
-  + After creating the virtual environment, activate it in the Terminal using `venv\Scripts\activate`.
-  + Once you've finished working with the program, run `deactivate` to exit the virtual environment.
-- Run `pip install -r requirements.txt` to install all packages used in the source code.
-- Alternatively, install libraries manually using `pip install <library_name>`.
+1. Install Python: <br>
+Download and install Python (version 3.8 or higher).
+2. Clone, fork or download the project: <br>
+- Open Command Prompt (CMD) or Terminal.
+```
+git clone https://github.com/phongthanh1412/Chess-game.git
+```
+- Navigate to your project
+```
+cd ~\Chessgame
+```
+3. Set up a virtual environment
+```
+python -m venv venv
+```
+4. Activate virtual environment
+```
+venv\Scripts\activate
+```
+5. Deactivate virtual environment
+```
+deactivate
+```
+6. Install dependencies
+```
+pip install -r requirements.txt
+```
 ### Run Code
-- Navigate to the project directory using the command `cd <full-path-to-project>`.
-- Execute the main program by running `python <full-path-to-file>`.
-
+1. Navigate to the project 
+```
+cd ~\Chessgame
+```
+2. Two-player mode <br>
+- Server <br>
+```
+python source/server.py
+```
+- Client
+```
+python source/client.py
+```
+3. One player mode
+```
+python source/main.py
+```
+## ⛑️Issues
+- In two-player mode: `en_passant`, `promotion` did not work accurately, `three move repetion` just popped up on 1 window side.
+- If you discover solutions or improvements to these issues, contribute and help build a truly polished chess experience.
+## 🚇 Demo
+- https://drive.google.com/file/d/1GPak9i4aB9l3Ye8O9zzhsMkNdcjVddSh/view?usp=drive_link
 ## 📚 Appendix 
 ### Modules
 - `pygame` is used for developing the game interface such as creating the game window, handling input...
