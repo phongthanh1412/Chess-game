@@ -29,7 +29,7 @@ def main():
         game.draw_last_move(screen)
         if not game_over:  # Only show valid moves and hover effect if game is ongoing
             game.draw_valid_moves(screen)
-            game.draw_hover_effect(screen)
+            # game.draw_hover_effect(screen)
         game.draw_pieces(screen)
         
         if dragger.state['is_dragging']:
@@ -74,7 +74,7 @@ def main():
             elif event.type == pygame.MOUSEMOTION:
                 row = event.pos[1] // SQUARE_SIZE
                 col = event.pos[0] // SQUARE_SIZE
-                game.set_hovered_square(row, col)
+                # game.set_hovered_square(row, col)
                 if dragger.state['is_dragging']:
                     dragger.set_mouse_pos(event.pos)
 

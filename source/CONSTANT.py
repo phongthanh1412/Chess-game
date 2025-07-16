@@ -3,6 +3,11 @@ import os
 
 pygame.init()
 
+# Addresses
+SERVER_IP = '127.0.0.1'
+HOST = '0.0.0.0'
+PORT = 5555
+
 # Screen size
 WIDTH = 600
 HEIGHT = 600

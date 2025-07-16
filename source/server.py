@@ -9,9 +9,6 @@ from network import encode_move, encode_control, decode_message
 from promotion import promote_to, choose_promotion
 from gameOver import show_result_popup
 
-HOST = '0.0.0.0'
-PORT = 5555
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -39,13 +36,12 @@ def main():
         game.draw_last_move(screen)
         if not game_over:
             game.draw_valid_moves(screen)
-            game.draw_hover_effect(screen)
         game.draw_pieces(screen)
 
         if dragger.state['is_dragging']:
             dragger.render(screen)
 
-        # Nhận dữ liệu từ client
+        # Receive message from client
         ready, _, _ = select.select([conn], [], [], 0)
         if ready:
             try:
@@ -56,19 +52,11 @@ def main():
                         sr, sc = msg['start']
                         er, ec = msg['end']
                         promotion = msg.get('promotion')
-
                         move = Move(Square(sr, sc), Square(er, ec))
                         move.promotion = promotion
                         piece = board.squares[sr][sc].piece
-                        board.move(piece, move)
-
-                        if promotion:
-                            promoted_piece = promote_to(promotion.lower(), piece.color)
-                            promoted_piece.moved = True
-                            promoted_piece.promoted_from_pawn = True
-                            board.squares[er][ec].piece = promoted_piece
-
                         board.en_passant = tuple(msg['en_passant']) if msg['en_passant'] else None
+                        board.move(piece, move, promotion_choice=promotion)
                         game.switch_turn()
 
                     elif msg['type'] == 'control':
@@ -109,7 +97,6 @@ def main():
                         running = False
                 continue
 
-            # Xử lý lượt của quân trắng
             if game.state['current_player'] == 'white':
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     dragger.set_mouse_pos(event.pos)
@@ -122,8 +109,6 @@ def main():
                             dragger.start_dragging(piece)
 
                 elif event.type == pygame.MOUSEMOTION:
-                    row, col = event.pos[1] // SQUARE_SIZE, event.pos[0] // SQUARE_SIZE
-                    game.set_hovered_square(row, col)
                     if dragger.state['is_dragging']:
                         dragger.set_mouse_pos(event.pos)
 
@@ -138,20 +123,14 @@ def main():
 
                         if board.valid_move(piece, move):
                             captured = board.squares[er][ec].has_piece()
-                            board.move(piece, move)
-                            board.set_true_en_passant(board.en_passant)
 
-                            # Xử lý promotion nếu là quân trắng
+                            # Handle promotion if white
                             promotion_choice = None
                             if piece.name == 'pawn' and er == 7:
                                 promotion_choice = choose_promotion(screen, piece.color)
-                                promoted_piece = promote_to(promotion_choice, piece.color)
-                                promoted_piece.moved = True
-                                promoted_piece.promoted_from_pawn = True
-                                board.squares[er][ec].piece = promoted_piece
-
-                            move.promotion = promotion_choice
-
+                                move.promotion = promotion_choice
+                            board.move(piece, move, promotion_choice=promotion_choice)
+                            board.set_true_en_passant(piece)
                             conn.send(encode_move(move, board.en_passant))
                             game.play_sound(captured)
                             game.switch_turn()

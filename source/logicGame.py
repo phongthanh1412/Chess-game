@@ -17,12 +17,12 @@ class Board:
         self.pgn_moves = []     # Store move history in SAN format
         self.move_count = 0     # Count total moves
         self.full_move_number = 1  # Move number for PGN
-        self.half_move_clock = 0  # Count half-moves without capture or pawn move
+        self.half_move_number = 0  # Count half-moves without capture or pawn move
         self.game_result = ""  # Game result: "1-0", "0-1", "1/2-1/2"
         self._add_pieces('white')
         self._add_pieces('black')
 
-    def move(self, piece, move, testing=False):
+    def move(self, piece, move, testing=False,promotion_choice = None):
         initial, final = move.initial, move.final
         en_passant_empty = self.squares[final.row][final.col].isempty()
 
@@ -57,11 +57,16 @@ class Board:
             
             if final.row in (0, 7):
                 if not testing:
-                    screen = pygame.display.get_surface()
-                    choice = choose_promotion(screen, piece.color)
+                    if promotion_choice is None:
+                        screen = pygame.display.get_surface()
+                        choice = choose_promotion(screen, piece.color)
+                    else:
+                        choice = promotion_choice
                     promoted_piece = promote_to(choice, piece.color)
                 else:
                     promoted_piece = Queen(piece.color)
+                promoted_piece.moved = True
+                promoted_piece.promoted_from_pawn = True
                 self.squares[final.row][final.col].piece = promoted_piece
                 move_state['promotion'] = type(promoted_piece).__name__
                 move_state['piece'] = type(promoted_piece).__name__
@@ -75,7 +80,7 @@ class Board:
         piece.moved = True
         piece.clear_moves()
         self.last_move = move
-
+        
         # Check for check and checkmate
         if not testing:
             opponent_color = 'black' if piece.color == 'white' else 'white'
@@ -101,9 +106,9 @@ class Board:
 
             # Update half-move clock
             if move_state['captured'] or move_state['pawn_move']:
-                self.half_move_clock = 0
+                self.half_move_number = 0
             else:
-                self.half_move_clock += 1
+                self.half_move_number += 1
 
     def _to_san(self, piece, move, move_state, captured_piece):
         """Convert move to SAN notation."""
@@ -186,7 +191,7 @@ class Board:
             pass
 
     def is_insufficient_material(self):
-        """Check for draw due to insufficient material."""
+        """Check for delta_draw due to insufficient material."""
         pieces = []
         for row in self.squares:
             for square in row:
@@ -252,7 +257,7 @@ class Board:
 
     def is_fifty_move_rule(self):
         """Check for 50-move rule."""
-        if self.half_move_clock >= FIFTY_MOVES:
+        if self.half_move_number >= FIFTY_MOVES:
             self.game_result = "1/2-1/2"
             return True
         return False
@@ -291,19 +296,12 @@ class Board:
             return False
 
         attackers = self._get_attacking_pieces(king_pos, color)
-        if len(attackers) > 1:
-            self.game_result = "1-0" if color == 'black' else "0-1"
-            return True
 
         attacker_pos = attackers[0]
         attacker = self.squares[attacker_pos.row][attacker_pos.col].piece
 
         if self._can_capture_attacker(attacker_pos, color):
             return False
-
-        if isinstance(attacker, (Knight, Pawn)):
-            self.game_result = "1-0" if color == 'black' else "0-1"
-            return True
 
         if self._can_block_attack(king_pos, attacker_pos, color):
             return False
@@ -312,7 +310,7 @@ class Board:
         return True
 
     def is_draw(self, color):
-        """Check draw conditions."""
+        """Check delta_draw conditions."""
         return (self.is_stalemate(color) or 
                 self.is_threefold_repetition() or 
                 self.is_fifty_move_rule() or
@@ -336,9 +334,9 @@ class Board:
         for row in temp.squares:
             for square in row:
                 if square.has_enemy_piece(piece.color):
-                    p = square.piece
-                    temp.calc_moves(p, square.row, square.col, bool=False)
-                    if any(isinstance(m.final.piece, King) and m.final.piece.color == piece.color for m in p.moves):
+                    enemy = square.piece
+                    temp.calc_moves(enemy, square.row, square.col, bool=False)
+                    if any(isinstance(m.final.piece, King) and m.final.piece.color == piece.color for m in enemy.moves):
                         return True
         return False
 
@@ -366,22 +364,22 @@ class Board:
                 break
             self._add_valid_move(piece, row, col, move_row, col, bool)
 
-        for dc in (-1, 1):
-            move_row, move_col = row + piece.direction, col + dc
+        for delta_col in (-1, 1):
+            move_row, move_col = row + piece.direction, col + delta_col
             if Square.in_range(move_row, move_col) and self.squares[move_row][move_col].has_enemy_piece(piece.color):
                 self._add_valid_move(piece, row, col, move_row, move_col, bool)
 
         r, fr = (3, 2) if piece.color == 'white' else (4, 5)
         if row == r:
-            for dc in (-1, 1):
-                if Square.in_range(col + dc) and self.squares[row][col + dc].has_enemy_piece(piece.color):
-                    p = self.squares[row][col + dc].piece
+            for delta_col in (-1, 1):
+                if Square.in_range(col + delta_col) and self.squares[row][col + delta_col].has_enemy_piece(piece.color):
+                    p = self.squares[row][col + delta_col].piece
                     if isinstance(p, Pawn) and p.en_passant:
-                        self._add_valid_move(piece, row, col, fr, col + dc, bool, p)
+                        self._add_valid_move(piece, row, col, fr, col + delta_col, bool, p)
 
     def _calc_knight_moves(self, piece, row, col, bool):
-        for dr, dc in [(-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1)]:
-            self._add_move_if_valid(piece, row, col, row + dr, col + dc, bool)
+        for delta_row, delta_col in [(-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1)]:
+            self._add_move_if_valid(piece, row, col, row + delta_row, col + delta_col, bool)
 
     def _calc_bishop_moves(self, piece, row, col, bool):
         increments = [(-1, 1), (-1, -1), (1, 1), (1, -1)]
@@ -396,25 +394,25 @@ class Board:
         self._calc_straightline_moves(piece, row, col, increments, bool)
 
     def _calc_straightline_moves(self, piece, row, col, increments, bool):
-        for dr, dc in increments:
-            r, c = row + dr, col + dc
-            while Square.in_range(r, c):
-                if self.squares[r][c].isempty():
-                    self._add_valid_move(piece, row, col, r, c, bool)
-                elif self.squares[r][c].has_enemy_piece(piece.color):
-                    self._add_valid_move(piece, row, col, r, c, bool)
+        for delta_row, delta_col in increments:
+            new_row, new_col = row + delta_row, col + delta_col
+            while Square.in_range(new_row, new_col):
+                if self.squares[new_row][new_col].isempty():
+                    self._add_valid_move(piece, row, col, new_row, new_col, bool)
+                elif self.squares[new_row][new_col].has_enemy_piece(piece.color):
+                    self._add_valid_move(piece, row, col, new_row, new_col, bool)
                     break
                 else:
                     break
-                r += dr
-                c += dc
+                new_row += delta_row
+                new_col += delta_col
 
     def _calc_king_moves(self, piece, row, col, bool):
-        for dr in (-1, 0, 1):
-            for dc in (-1, 0, 1):
-                if dr == dc == 0:
+        for delta_row in (-1, 0, 1):
+            for delta_col in (-1, 0, 1):
+                if delta_row == delta_col == 0:
                     continue
-                self._add_move_if_valid(piece, row, col, row + dr, col + dc, bool)
+                self._add_move_if_valid(piece, row, col, row + delta_row, col + delta_col, bool)
 
         if not piece.moved:
             if self._can_castle_queenside(piece, row, bool):
@@ -460,7 +458,7 @@ class Board:
         rook_move = Move(Square(row, 0), Square(row, 3))
         king_move = Move(Square(row, col), Square(row, 2))
         
-        if not bool or (not self.in_check(piece, king_move) and not self.in_check(rook, rook_move)):
+        if not bool or not self.in_check(piece, king_move):
             rook.add_move(rook_move)
             piece.add_move(king_move)
 
@@ -470,7 +468,7 @@ class Board:
         rook_move = Move(Square(row, 7), Square(row, 5))
         king_move = Move(Square(row, col), Square(row, 6))
         
-        if not bool or (not self.in_check(piece, king_move) and not self.in_check(rook, rook_move)):
+        if not bool or not self.in_check(piece, king_move):
             rook.add_move(rook_move)
             piece.add_move(king_move)
 
