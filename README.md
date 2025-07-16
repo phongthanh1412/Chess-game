@@ -46,7 +46,7 @@ chessgame/
    <img src="snapshot/chess.png" alt="chess">
  </div>
 
-## 📄 List of game futures
+## 📄 List of game features
 - **Standard Chess Gameplay:** Support all chess rules, including piece movements, captures, castling, en passant and pawn promotion.
 - **Graphical Interface:** Render an 8x8 chessboard using Pygame with piece display, valid move highlights, last move indicators, hover effects and row/column labels.
 - **Piece Dragging:** Enable piece dragging with highlighted valid move squares.
