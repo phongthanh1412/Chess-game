@@ -11,7 +11,6 @@ class Config:
         self.current_theme = self._themes[self._current_theme_index]
 
     def switch_theme(self):
-        """Cycle to the next theme in the list."""
         self._current_theme_index = (self._current_theme_index + 1) % len(self._themes)
         self.current_theme = self._themes[self._current_theme_index]
 

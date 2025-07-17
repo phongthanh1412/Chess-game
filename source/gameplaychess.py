@@ -4,7 +4,6 @@ from logicGame import Board
 from dragMouse import Dragger
 from setting import Config
 from square import Square
-from chess import Move
 
 class ChessGame:
     def __init__(self, flipped=False):
@@ -114,15 +113,6 @@ class ChessGame:
 
     def change_theme(self):
         self.config.switch_theme()
-
-    def play_sound(self, captured=False, castled=False):
-        if castled:
-            sound = self.config.sounds['castle']
-        elif captured:
-            sound = self.config.sounds['capture']
-        else:
-            sound = self.config.sounds['move']
-        sound.play()
 
     def reset_game(self):
         self.state = {

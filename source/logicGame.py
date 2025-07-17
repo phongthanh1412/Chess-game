@@ -120,7 +120,10 @@ class Board:
                 self.half_move_number = 0
             else:
                 self.half_move_number += 1
-
+        
+        if not testing:
+            self.set_true_en_passant(piece, move)
+            
     def _to_san(self, piece, move, move_state, captured_piece):
         """Convert move to SAN notation."""
         initial, final = move.initial, move.final
@@ -330,13 +333,17 @@ class Board:
     def valid_move(self, piece, move):
         return move in piece.moves
 
-    def set_true_en_passant(self, piece):
+    def set_true_en_passant(self, piece, move=None):
         if isinstance(piece, Pawn):
             for row in self.squares:
                 for square in row:
                     if isinstance(square.piece, Pawn):
                         square.piece.en_passant = False
-            piece.en_passant = True
+
+        if move and abs(move.final.row - move.initial.row) == 2:
+            real_pawn = self.squares[move.final.row][move.final.col].piece
+            if isinstance(real_pawn, Pawn):
+                real_pawn.en_passant = True
 
     def in_check(self, piece, move):
         temp = copy.deepcopy(self)

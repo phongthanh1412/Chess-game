@@ -25,7 +25,7 @@ def main():
         screen.fill((0, 0, 0))
 
         # Draw the board
-        game.draw_board(screen)
+        game.draw_board_white(screen)
         game.draw_last_move(screen)
         if not game_over:  # Only show valid moves if game is ongoing
             game.draw_valid_moves(screen)
@@ -88,7 +88,7 @@ def main():
 
                     if board.valid_move(dragger.state['piece'], move):
                         board.move(dragger.state['piece'], move)
-                        board.set_true_en_passant(dragger.state['piece'])
+                        board.set_true_en_passant(dragger.state['piece'], move)
                         game.switch_turn()
 
                         next_player = game.state['current_player']

@@ -5,7 +5,7 @@ from CONSTANT import *
 from gameplaychess import ChessGame
 from square import Square
 from move import Move
-from network import encode_move, encode_control, decode_message
+from network import *
 from promotion import choose_promotion
 from gameOver import show_result_popup
 
@@ -128,7 +128,7 @@ def main():
                                 promotion_choice = choose_promotion(screen, piece.color)
                                 move.promotion = promotion_choice
                             board.move(piece, move, promotion_choice=promotion_choice)
-                            board.set_true_en_passant(piece)
+                            board.set_true_en_passant(piece, move)
                             conn.send(encode_move(move, board.en_passant))
                             game.switch_turn()
 
