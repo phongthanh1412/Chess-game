@@ -6,13 +6,13 @@ from gameplaychess import ChessGame
 from square import Square
 from move import Move
 from network import encode_move, encode_control, decode_message
-from promotion import promote_to, choose_promotion
+from promotion import choose_promotion
 from gameOver import show_result_popup
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Server - Chess (White)")
+    pygame.display.set_caption("White Player")
     clock = pygame.time.Clock()
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

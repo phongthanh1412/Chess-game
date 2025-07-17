@@ -42,19 +42,18 @@ class ChessGame:
         for row in range(ROWS):
             for col in range(COLS):
                 draw_row, draw_col = self._flip(row, col)
-                color = self._get_square_color(row, col, bg_colors)
-                self._draw_square(surface, draw_row, draw_col, color)
+                self.board.squares[row][col].draw(surface, self.board, theme)
 
-                if col == 0:
-                    text_color = theme.bg_dark if row % 2 == 0 else theme.bg_light
+                if draw_col == 0:
+                    text_color = bg_colors['dark'] if (row + col) % 2 == 0 else bg_colors['light']
                     self._draw_text(surface, str(ROWS - row),
-                        (5, draw_row * SQUARE_SIZE + 5), text_color)
+                         (5, draw_row * SQUARE_SIZE + 5), text_color)
 
-                if row == 7:
-                    text_color = self._get_square_color(row, col, 
-                        {'light': theme.bg_dark, 'dark': theme.bg_light})
+                if draw_row == 7:
+                    text_color = self._get_square_color(row, col,
+                       {'light': theme.bg_dark, 'dark': theme.bg_light})
                     self._draw_text(surface, Square.get_alphacol(col),
-                        (draw_col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 20), text_color)
+                      (draw_col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 20), text_color)
 
     def draw_pieces(self, surface):
         for row in range(ROWS):

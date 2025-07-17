@@ -20,9 +20,6 @@ SQUARE_SIZE = WIDTH // COLS
 # 50-move rule
 FIFTY_MOVES = 100
 
-# Highlight effect
-HOVER = (180, 180, 180)
-
 # Background color for draw
 DRAW_COLOR = (120, 120, 80)
 WIN_COLOR = (80, 120, 50)  
@@ -39,6 +36,11 @@ OLIVE_DARK = (119, 154, 88)
 
 COOL_BEIGE  = (229, 228, 200)
 STEEL_BLUE = (60, 95, 135)
+
+# Check color
+CHECK_COLOR = (255, 0, 0)
+WHITE_SQUARE = TAN_LIGHT  
+DARK_SQUARE = BROWN_WOOD  
 
 # Highlight move
 YELLOW_HIGHLIGHT = (245, 234, 100)

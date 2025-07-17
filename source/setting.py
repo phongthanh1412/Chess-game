@@ -9,12 +9,6 @@ class Config:
         self._themes = self._create_themes()
         self._current_theme_index = 0
         self.current_theme = self._themes[self._current_theme_index]
-        # Sound effects
-        self.sounds = {
-            'move': Sound(MOVE_SOUND),
-            'capture': Sound(CAPTURE_SOUND),
-            'castle': Sound(CASTLE_SOUND)
-        }
 
     def switch_theme(self):
         """Cycle to the next theme in the list."""

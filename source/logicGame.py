@@ -19,6 +19,7 @@ class Board:
         self.full_move_number = 1  # Move number for PGN
         self.half_move_number = 0  # Count half-moves without capture or pawn move
         self.game_result = ""  # Game result: "1-0", "0-1", "1/2-1/2"
+        self.check_square = None
         self._add_pieces('white')
         self._add_pieces('black')
 
@@ -86,6 +87,9 @@ class Board:
             if king_pos:
                 move_state['check'] = self._is_king_in_check(opponent_color, king_pos)
                 move_state['checkmate'] = self.is_checkmate(opponent_color)
+                self.check_square = king_pos if move_state['check'] else None
+            else:
+                self.check_square = None
         # Handle sounds
         if not testing:
             if move_state['checkmate']:
