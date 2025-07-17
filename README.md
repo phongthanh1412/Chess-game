@@ -46,7 +46,7 @@ chessgame/
    <img src="snapshot/chess.png" alt="chess">
  </div>
 
-## 📄 List of game futures
+## 📄 List of game features
 - **Standard Chess Gameplay:** Support all chess rules, including piece movements, captures, castling, en passant and pawn promotion.
 - **Graphical Interface:** Render an 8x8 chessboard using Pygame with piece display, valid move highlights, last move indicators, hover effects and row/column labels.
 - **Piece Dragging:** Enable piece dragging with highlighted valid move squares.
@@ -131,8 +131,10 @@ python source/client.py
 python source/main.py
 ```
 ## ⛑️Issues
-- In two-player mode: `en_passant`, `promotion` did not work accurately, `three move repetion` just popped up on 1 window side.
-- If you discover solutions or improvements to these issues, contribute and help build a truly polished chess experience.
+- In two-player mode: `en_passant`, `promotion` did not work accurately.
+  + En passant: The en passant move is not recognized or executed correctly. Pawns cannot perform en passant captures as expected.
+  + Promotion: Pawn promotion does not always work as intended. The promotion popup appears on both sides, or the promoted piece is not updated correctly on the opponent's board.
+- If you discover solutions or improvements to these issues, contribute and help build a truly polished chess experience. Thank you!
 ## 🚇 Demo
 - https://drive.google.com/file/d/1GPak9i4aB9l3Ye8O9zzhsMkNdcjVddSh/view?usp=drive_link
 ## 📚 Appendix 
