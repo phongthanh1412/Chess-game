@@ -11,7 +11,6 @@ class ChessGame:
         self.flipped = flipped
         self.state = {
             'current_player': 'white',
-            'hovered_square': None,
         }
         self.board = Board()
         self.dragger = Dragger()
@@ -35,26 +34,44 @@ class ChessGame:
             return 7 - row, 7 - col
         return row, col
 
-    def draw_board(self, surface):
+    def draw_board_white(self, surface):
         theme = self.config.current_theme
         bg_colors = {'light': theme.bg_light, 'dark': theme.bg_dark}
 
         for row in range(ROWS):
             for col in range(COLS):
-                draw_row, draw_col = self._flip(row, col)
                 self.board.squares[row][col].draw(surface, self.board, theme)
 
-                if draw_col == 0:
+                if col == 0:
                     text_color = bg_colors['dark'] if (row + col) % 2 == 0 else bg_colors['light']
                     self._draw_text(surface, str(ROWS - row),
-                         (5, draw_row * SQUARE_SIZE + 5), text_color)
+                         (5, row * SQUARE_SIZE + 5), text_color)
 
-                if draw_row == 7:
+                if row == 7:
                     text_color = self._get_square_color(row, col,
                        {'light': theme.bg_dark, 'dark': theme.bg_light})
-                    self._draw_text(surface, Square.get_alphacol(col),
-                      (draw_col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 20), text_color)
+                    self._draw_text(surface, Square.get_alphacol_white(col),
+                      (col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 20), text_color)
+                    
+    def draw_board_black(self, surface):
+        theme = self.config.current_theme
+        bg_colors = {'light': theme.bg_light, 'dark': theme.bg_dark}
 
+        for row in range(ROWS):
+            for col in range(COLS):
+                self.board.squares[row][col].draw(surface, self.board, theme)
+
+                if col == 0:
+                    text_color = bg_colors['dark'] if (row + col) % 2 == 0 else bg_colors['light']
+                    self._draw_text(surface, str(row + 1),
+                         (5, row * SQUARE_SIZE + 5), text_color)
+
+                if row == 7:
+                    text_color = self._get_square_color(row, col,
+                       {'light': theme.bg_dark, 'dark': theme.bg_light})
+                    self._draw_text(surface, Square.get_alphacol_black(col),
+                      (col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 20), text_color)
+                    
     def draw_pieces(self, surface):
         for row in range(ROWS):
             for col in range(COLS):
@@ -110,7 +127,6 @@ class ChessGame:
     def reset_game(self):
         self.state = {
             'current_player': 'white',
-            'hovered_square': None,
         }
         self.board = Board()
         self.dragger = Dragger()

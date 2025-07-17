@@ -32,7 +32,7 @@ def main():
     running = True
     while running:
         screen.fill((0, 0, 0))
-        game.draw_board(screen)
+        game.draw_board_white(screen)
         game.draw_last_move(screen)
         if not game_over:
             game.draw_valid_moves(screen)

@@ -9,9 +9,6 @@ from network import encode_move, encode_control, decode_message
 from promotion import choose_promotion
 from gameOver import show_result_popup
 
-def flip_coords(row, col):
-    return 7 - row, 7 - col
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -33,7 +30,7 @@ def main():
     running = True
     while running:
         screen.fill((0, 0, 0))
-        game.draw_board(screen)
+        game.draw_board_black(screen)
         game.draw_last_move(screen)
         if not game_over:
             game.draw_valid_moves(screen)
@@ -103,7 +100,8 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     dragger.set_mouse_pos(event.pos)
                     row, col = dragger.state['mouse_y'] // SQUARE_SIZE, dragger.state['mouse_x'] // SQUARE_SIZE
-                    row, col = flip_coords(row, col)
+                    row, col = game._flip (row, col)
+                    
                     if board.squares[row][col].has_piece():
                         piece = board.squares[row][col].piece
                         if piece.color == 'black':
@@ -113,7 +111,7 @@ def main():
 
                 elif event.type == pygame.MOUSEMOTION:
                     row, col = event.pos[1] // SQUARE_SIZE, event.pos[0] // SQUARE_SIZE
-                    row, col = flip_coords(row, col)
+                    row, col = game._flip (row, col)
                     if dragger.state['is_dragging']:
                         dragger.set_mouse_pos(event.pos)
 
@@ -123,8 +121,8 @@ def main():
                         sr, sc = dragger.state['start_row'], dragger.state['start_col']
                         er = dragger.state['mouse_y'] // SQUARE_SIZE
                         ec = dragger.state['mouse_x'] // SQUARE_SIZE
-                        sr, sc = flip_coords(sr, sc)
-                        er, ec = flip_coords(er, ec)
+                        sr, sc = game._flip (sr, sc)
+                        er, ec = game._flip (er, ec)
                         move = Move(Square(sr, sc), Square(er, ec))
                         piece = dragger.state['piece']
 

@@ -38,10 +38,11 @@ class Square:
 
         pygame.draw.rect(screen, color, (self.col * SQUARE_SIZE, self.row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
     
-    @staticmethod
     def in_range(*args):
         return all(0 <= arg <= 7 for arg in args)
 
-    @staticmethod
-    def get_alphacol(col):
+    def get_alphacol_white(col):
         return Square.COLS[col]
+    
+    def get_alphacol_black(col):
+        return Square.COLS[7 - col]
