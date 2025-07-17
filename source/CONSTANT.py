@@ -67,6 +67,9 @@ RENDER_TEXT = pygame.font.SysFont('monospace', 18, bold=True)
 # Sound
 MOVE_SOUND = os.path.join('assets/sounds/move.wav')
 CAPTURE_SOUND = os.path.join('assets/sounds/capture.wav')
+CASTLE_SOUND = os.path.join('assets/sounds/castle.wav')
+CHECK_SOUND = os.path.join('assets/sounds/check.wav')
+CHECKMATE_SOUND = os.path.join('assets/sounds/checkmate.wav')
 
 # Position 
 COL_PIECE = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'}

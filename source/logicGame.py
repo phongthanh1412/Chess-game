@@ -52,8 +52,6 @@ class Board:
                 self.squares[initial.row][initial.col + diff].piece = None
                 move_state['captured'] = True
                 move_state['en_passant'] = True
-                if not testing:
-                    Sound(CAPTURE_SOUND).play()
             
             if final.row in (0, 7):
                 if not testing:
@@ -75,7 +73,7 @@ class Board:
             move_state['castling'] = 'kingside' if final.col > initial.col else 'queenside'
             if not testing:
                 self._handle_castling(piece, initial, final)
-
+                Sound(CASTLE_SOUND).play()
         # Finalize move
         piece.moved = True
         piece.clear_moves()
@@ -88,7 +86,16 @@ class Board:
             if king_pos:
                 move_state['check'] = self._is_king_in_check(opponent_color, king_pos)
                 move_state['checkmate'] = self.is_checkmate(opponent_color)
-
+        # Handle sounds
+        if not testing:
+            if move_state['checkmate']:
+                Sound(CHECKMATE_SOUND).play()
+            elif move_state['check']:
+                Sound(CHECK_SOUND).play()
+            elif move_state['captured'] or move_state['en_passant']:
+                Sound(CAPTURE_SOUND).play()
+            elif not move_state['castling']:
+                Sound(MOVE_SOUND).play()
         # Convert move to SAN
         if not testing:
             san = self._to_san(piece, move, move_state, captured_piece)

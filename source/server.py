@@ -122,8 +122,6 @@ def main():
                         piece = dragger.state['piece']
 
                         if board.valid_move(piece, move):
-                            captured = board.squares[er][ec].has_piece()
-
                             # Handle promotion if white
                             promotion_choice = None
                             if piece.name == 'pawn' and er == 7:
@@ -132,7 +130,6 @@ def main():
                             board.move(piece, move, promotion_choice=promotion_choice)
                             board.set_true_en_passant(piece)
                             conn.send(encode_move(move, board.en_passant))
-                            game.play_sound(captured)
                             game.switch_turn()
 
                             next_player = game.state['current_player']

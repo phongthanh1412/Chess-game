@@ -93,26 +93,19 @@ class ChessGame:
                 color = self._get_square_color(row, col, trace_colors)
                 self._draw_square(surface, draw_row, draw_col, color)
 
-    def draw_hover_effect(self, surface):
-        if self.state['hovered_square']:
-            square = self.state['hovered_square']
-            draw_row, draw_col = self._flip(square.row, square.col)
-            rect = (draw_col * SQUARE_SIZE, draw_row * SQUARE_SIZE,
-                    SQUARE_SIZE, SQUARE_SIZE)
-            pygame.draw.rect(surface, HOVER, rect, width=3)
-
     def switch_turn(self):
         self.state['current_player'] = 'black' if self.state['current_player'] == 'white' else 'white'
-
-    def set_hovered_square(self, row, col):
-        row, col = self._flip(row, col) if self.flipped else (row, col)
-        self.state['hovered_square'] = self.board.squares[row][col]
 
     def change_theme(self):
         self.config.switch_theme()
 
-    def play_sound(self, captured=False):
-        sound = self.config.sounds['capture'] if captured else self.config.sounds['move']
+    def play_sound(self, captured=False, castled=False):
+        if castled:
+            sound = self.config.sounds['castle']
+        elif captured:
+            sound = self.config.sounds['capture']
+        else:
+            sound = self.config.sounds['move']
         sound.play()
 
     def reset_game(self):

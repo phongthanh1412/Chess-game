@@ -12,7 +12,8 @@ class Config:
         # Sound effects
         self.sounds = {
             'move': Sound(MOVE_SOUND),
-            'capture': Sound(CAPTURE_SOUND)
+            'capture': Sound(CAPTURE_SOUND),
+            'castle': Sound(CASTLE_SOUND)
         }
 
     def switch_theme(self):
