@@ -115,13 +115,3 @@ class ChessGame:
         self.board = Board()
         self.dragger = Dragger()
         self.config = Config()
-
-    def update_from_server(self, board_state):
-        self.state['current_player'] = board_state['current_player']
-        for r in range(ROWS):
-            for c in range(COLS):
-                self.board.squares[r][c].piece = board_state['squares'][r][c]
-        self.board.last_move = Move(
-            Square(board_state['last_move']['start_row'], board_state['last_move']['start_col']),
-            Square(board_state['last_move']['end_row'], board_state['last_move']['end_col'])
-        ) if board_state['last_move'] else None
