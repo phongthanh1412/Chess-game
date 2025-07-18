@@ -65,7 +65,6 @@ class Board:
                 else:
                     promoted_piece = Queen(piece.color)
                 promoted_piece.moved = True
-                promoted_piece.promoted_from_pawn = True
                 self.squares[final.row][final.col].piece = promoted_piece
                 move_state['promotion'] = type(promoted_piece).__name__
                 move_state['piece'] = type(promoted_piece).__name__
@@ -204,6 +203,19 @@ class Board:
         except Exception:
             pass
 
+    def set_true_en_passant(self, piece, move=None):
+        if isinstance(piece, Pawn):
+            for row in self.squares:
+                for square in row:
+                    if isinstance(square.piece, Pawn):
+                        square.piece.en_passant = False
+
+        if move and abs(move.final.row - move.initial.row) == 2:
+            real_pawn = self.squares[move.final.row][move.final.col].piece
+            if isinstance(real_pawn, Pawn):
+                real_pawn.en_passant = True
+
+    # Check draw conditions
     def is_insufficient_material(self):
         """Check for delta_draw due to insufficient material."""
         pieces = []
@@ -330,21 +342,7 @@ class Board:
                 self.is_fifty_move_rule() or
                 self.is_insufficient_material())
 
-    def valid_move(self, piece, move):
-        return move in piece.moves
-
-    def set_true_en_passant(self, piece, move=None):
-        if isinstance(piece, Pawn):
-            for row in self.squares:
-                for square in row:
-                    if isinstance(square.piece, Pawn):
-                        square.piece.en_passant = False
-
-        if move and abs(move.final.row - move.initial.row) == 2:
-            real_pawn = self.squares[move.final.row][move.final.col].piece
-            if isinstance(real_pawn, Pawn):
-                real_pawn.en_passant = True
-
+    # Check if the king is in check
     def in_check(self, piece, move):
         temp = copy.deepcopy(self)
         temp.move(copy.deepcopy(piece), move, testing=True)
@@ -358,6 +356,18 @@ class Board:
                         return True
         return False
 
+    def _is_king_in_check(self, color, king_pos):
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.squares[row][col].piece
+                if piece and piece.color != color:
+                    self.calc_moves(piece, row, col, bool=False)
+                    for move in piece.moves:
+                        if move.final.row == king_pos.row and move.final.col == king_pos.col:
+                            return True
+        return False
+    
+    # Calculate moves for a piece
     def calc_moves(self, piece, row, col, bool=True):
         piece.clear_moves()
         
@@ -411,6 +421,19 @@ class Board:
         increments = [(-1, 1), (-1, -1), (1, 1), (1, -1), (-1, 0), (0, 1), (1, 0), (0, -1)]
         self._calc_straightline_moves(piece, row, col, increments, bool)
 
+    def _calc_king_moves(self, piece, row, col, bool):
+        for delta_row in (-1, 0, 1):
+            for delta_col in (-1, 0, 1):
+                if delta_row == delta_col == 0:
+                    continue
+                self._add_move_if_valid(piece, row, col, row + delta_row, col + delta_col, bool)
+
+        if not piece.moved:
+            if self._can_castle_queenside(piece, row, bool):
+                self._add_queenside_castling(piece, row, col, bool)
+            if self._can_castle_kingside(piece, row, bool):
+                self._add_kingside_castling(piece, row, col, bool)
+
     def _calc_straightline_moves(self, piece, row, col, increments, bool):
         for delta_row, delta_col in increments:
             new_row, new_col = row + delta_row, col + delta_col
@@ -425,18 +448,12 @@ class Board:
                 new_row += delta_row
                 new_col += delta_col
 
-    def _calc_king_moves(self, piece, row, col, bool):
-        for delta_row in (-1, 0, 1):
-            for delta_col in (-1, 0, 1):
-                if delta_row == delta_col == 0:
-                    continue
-                self._add_move_if_valid(piece, row, col, row + delta_row, col + delta_col, bool)
-
-        if not piece.moved:
-            if self._can_castle_queenside(piece, row, bool):
-                self._add_queenside_castling(piece, row, col, bool)
-            if self._can_castle_kingside(piece, row, bool):
-                self._add_kingside_castling(piece, row, col, bool)
+    # Check if the king can castle
+    def _handle_castling(self, piece, initial, final):
+        if abs(initial.col - final.col) == 2:
+            rook = piece.left_rook if final.col < initial.col else piece.right_rook
+            if rook:
+                self.move(rook, rook.moves[-1], testing=True)
 
     def _can_castle_queenside(self, piece, row, bool):
         if not self.squares[row][0].piece or not isinstance(self.squares[row][0].piece, Rook):
@@ -490,6 +507,10 @@ class Board:
             rook.add_move(rook_move)
             piece.add_move(king_move)
 
+    # Check if a move is valid
+    def valid_move(self, piece, move):
+        return move in piece.moves
+    
     def _add_move_if_valid(self, piece, row, col, move_row, move_col, bool):
         if Square.in_range(move_row, move_col) and self.squares[move_row][move_col].isempty_or_enemy(piece.color):
             self._add_valid_move(piece, row, col, move_row, move_col, bool)
@@ -525,17 +546,6 @@ class Board:
                 if isinstance(piece, King) and piece.color == color:
                     return Square(row, col)
         return None
-
-    def _is_king_in_check(self, color, king_pos):
-        for row in range(ROWS):
-            for col in range(COLS):
-                piece = self.squares[row][col].piece
-                if piece and piece.color != color:
-                    self.calc_moves(piece, row, col, bool=False)
-                    for move in piece.moves:
-                        if move.final.row == king_pos.row and move.final.col == king_pos.col:
-                            return True
-        return False
 
     def _get_attacking_pieces(self, king_pos, color):
         attackers = []
@@ -597,9 +607,3 @@ class Board:
                 col += col_step
                 
         return path
-
-    def _handle_castling(self, piece, initial, final):
-        if abs(initial.col - final.col) == 2:
-            rook = piece.left_rook if final.col < initial.col else piece.right_rook
-            if rook:
-                self.move(rook, rook.moves[-1], testing=True)

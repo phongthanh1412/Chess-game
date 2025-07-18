@@ -27,14 +27,11 @@ class Square:
         return not self.piece or self.piece.color != color
     
     def draw(self, screen, board, theme=None):
-
-        if board.check_square and board.check_square.row == self.row and board.check_square.col == self.col:
-            color = CHECK_COLOR  
+        
+        if theme:
+            color = theme.bg_light if (self.row + self.col) % 2 == 0 else theme.bg_dark
         else:
-            if theme:
-                color = theme.bg_light if (self.row + self.col) % 2 == 0 else theme.bg_dark
-            else:
-                color = WHITE_SQUARE if (self.row + self.col) % 2 == 0 else DARK_SQUARE
+            color = WHITE_SQUARE if (self.row + self.col) % 2 == 0 else DARK_SQUARE
 
         pygame.draw.rect(screen, color, (self.col * SQUARE_SIZE, self.row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
     

@@ -49,12 +49,10 @@ def main():
                     if msg['type'] == 'move' and not game_over:
                         sr, sc = msg['start']
                         er, ec = msg['end']
-                        promotion = msg.get('promotion')
                         move = Move(Square(sr, sc), Square(er, ec))
-                        move.promotion = promotion
                         piece = board.squares[sr][sc].piece
                         board.en_passant = tuple(msg['en_passant']) if msg['en_passant'] else None
-                        board.move(piece, move, promotion_choice=promotion)
+                        board.move(piece, move)
                         game.switch_turn()
 
                     elif msg['type'] == 'control':
@@ -127,12 +125,7 @@ def main():
                         piece = dragger.state['piece']
 
                         if board.valid_move(piece, move):
-                            # Handle promotion if black
-                            promotion_choice = None
-                            if piece.name == 'pawn' and er == 0:
-                                promotion_choice = choose_promotion(screen, piece.color)
-                                move.promotion = promotion_choice
-                            board.move(piece, move, promotion_choice=promotion_choice)
+                            board.move(piece, move)
                             board.set_true_en_passant(piece, move)
                             client.send(encode_move(move, board.en_passant))
                             game.switch_turn()
