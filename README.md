@@ -40,11 +40,16 @@ chessgame/
   
 
 ## 🎮 Game Snapshot
-
+- One-player mode
  <div align="center">
    <img src="snapshot/chess.png" alt="chess">
  </div>
-
+ 
+- Two-player mode
+ <div align="center">
+   <img src="snapshot/two_player.png" alt="two_player_mode">
+ </div>
+ 
 ## 📄 List of game features
 
 | Feature                | Description |
